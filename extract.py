@@ -174,14 +174,33 @@ def extract_preparation_date(text):
         return None
 
 def extract_completed_requirements(text):
-    # Regular expression to match lines starting with "OK" followed by whitespace
-    pattern = r'^OK\s+(.+)$'
+    # Regular expression to match OK lines and associated details
+    pattern = r'OK\s+(.*?)(?=\n(?:OK|NO|\n|$))'
     
-    # Find all matches in the text, using multiline mode
-    matches = re.findall(pattern, text, re.MULTILINE)
+    matches = re.findall(pattern, text, re.DOTALL)
     
-    # Return the list of matched lines (excluding the "OK" prefix)
-    return matches
+    completed_requirements = []
+    
+    for match in matches:
+        lines = match.strip().split('\n')
+        requirement = {
+            'category': lines[0].strip(),
+            'earned': None,
+            'details': []
+        }
+        
+        for line in lines[1:]:
+            line = line.strip()
+            if line.startswith('LEGEND'):
+                break  # Break the loop when "LEGEND" is encountered
+            elif line.startswith('EARNED:'):
+                requirement['earned'] = line.split('EARNED:')[1].strip()
+            elif line and not line.startswith('-'):
+                requirement['details'].append(line)
+        
+        completed_requirements.append(requirement)
+    
+    return completed_requirements
 
 def extract_unfulfilled_requirements(text):
     # Regular expression to match NO lines and associated details
