@@ -270,13 +270,17 @@ def extract_all_data(pdf_path):
     # Extract raw text from PDF
     raw_text = extract_text_from_pdf(pdf_path)
 
+    # Check if the first line contains "Prepared:"
+    if not raw_text.strip().startswith("Prepared:"):
+        raise ValueError('The provided PDF does not appear to be a valid DARS report.')
+
     # Extract all data using existing methods
     student_name = extract_student_name(raw_text)
     preparation_date = extract_preparation_date(raw_text)
     requested = extract_requested_major(raw_text)
     
     if 'Certificate' in requested['major']:
-        return {'status': 204, 'message': 'Certificates are not accepted.'}
+        raise ValueError('Certificates are not accepted.')
     
     majors_and_certificates = extract_majors_and_certificates(raw_text)
     credits_info = parse_credits_info(raw_text)
@@ -303,6 +307,6 @@ def extract_all_data(pdf_path):
     return all_data
 
 
-all_data = extract_all_data('./assets/compsci.pdf')
+# all_data = extract_all_data('./assets/compsci.pdf')
 
-pprint(all_data)
+# pprint(all_data)
