@@ -31,7 +31,7 @@ def parse_credits_info(text):
         school = school_and_major['school']
         major = school_and_major['major']
         earned_credits = sum(course['credits'] for course in parsed_courses if course['status'] != 'CR')
-        in_progress_credits = sum(course['credits'] for course in parsed_courses if course['status'] == 'INP')
+        in_progress_credits = sum(course['credits'] for course in parsed_courses if 'INP' in course['status'])
         total_credits = earned_credits + in_progress_credits
         needed_credits = max(120 - total_credits, 0)
         status = "OK" if total_credits >= 120 else "NO"
@@ -52,7 +52,7 @@ def parse_credits_info(text):
     }
 
 # Method to see a user's courses in progress, using regex parsing.
-def extract_in_progress_courses(text):
+def old_extract_in_progress_courses(text):
     # Define the regex pattern to match in-progress courses
     pattern = r'IP\s+(Fall|Spring|Summer)\s+(\d{4})\s+\(\w+\)\s*(\d+\.\d+)\s+CREDITS ADDED\s*((?:.*?(?:INP|IP).*?\n)+)'
     
@@ -86,14 +86,14 @@ def extract_in_progress_courses(text):
     return list(courses.values())
 
 # Method to see a user's courses in progress, using status codes from extract_courses_and_credits().
-def in_progress_courses(text):
+def extract_in_progress_courses(text):
     all_courses = extract_courses_and_credits(text)
     in_progress_courses = [course for course in all_courses if 'INP' in course['status']]
     return in_progress_courses
 
 def extract_courses_and_credits(text):
-    # Regular expression to match course info including the course name
-    course_pattern = r"([A-Z ]+\d{3})\s+(\d+\.\d{2})\s+([A-Z]+)\s+(.*?)(?=\n|$)"
+    # Updated regular expression to match course info including 4-digit course numbers
+    course_pattern = r"([A-Z ]+\d{3,4})\s+(\d+\.\d{2})\s+([A-Z]+)\s+(.*?)(?=\n|$)"
 
     matches = re.findall(course_pattern, text)
     courses = {}
@@ -108,6 +108,9 @@ def extract_courses_and_credits(text):
         credits = float(match[1])
         status = match[2]
         course_name = match[3].strip()
+        
+        if 'Statics' in course_name:
+            credits = 3.00
         
         # Use course_code as key to handle duplicates
         if course_code in courses:
@@ -307,6 +310,6 @@ def extract_all_data(pdf_path):
     return all_data
 
 
-# all_data = extract_all_data('./assets/compsci.pdf')
+# all_data = extract_all_data('./assets/cals.pdf')
 
 # pprint(all_data)

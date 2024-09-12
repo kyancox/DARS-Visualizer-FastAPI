@@ -57,7 +57,7 @@ IP      Fall 2024 (FA24)
        FA24 STAT    303  1.00 INP    R for Statistics I           
        FA24 STAT    309  3.00 INP    Intro to Prob & Math Stat    
 """
-in_progress_courses = extract.extract_in_progress_courses(text)
+in_progress_courses = extract.old_extract_in_progress_courses(text)
 print('In progress courses:')
 for course in in_progress_courses:
     print(course)
