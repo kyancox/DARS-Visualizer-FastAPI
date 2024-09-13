@@ -177,7 +177,6 @@ def extract_preparation_date(text):
         return None
 
 def extract_completed_requirements(text):
-    # Regular expression to match OK lines and associated details
     pattern = r'OK\s+(.*?)(?=\n(?:OK|NO|\n|$))'
     
     matches = re.findall(pattern, text, re.DOTALL)
@@ -195,21 +194,23 @@ def extract_completed_requirements(text):
         if requirement['category'] == '= requirement complete':
             continue
         
-        for line in lines[1:]:
-            line = line.strip()
-            if line.startswith('LEGEND'):
-                break  # Break the loop when "LEGEND" is encountered
-            elif line.startswith('EARNED:'):
+        # Find the index of the dashed line
+        dash_line_index = next((i for i, line in enumerate(lines) if re.match(r'^-+$', line)), len(lines))
+        
+        # Capture all lines between category and dashed line as details
+        requirement['details'] = [line.strip() for line in lines[1:dash_line_index] if line.strip()]
+        
+        # Extract 'EARNED:' from details if present
+        for line in requirement['details']:
+            if line.startswith('EARNED:'):
                 requirement['earned'] = line.split('EARNED:')[1].strip()
-            elif line and not line.startswith('-'):
-                requirement['details'].append(line)
+                break
         
         completed_requirements.append(requirement)
     
     return completed_requirements
 
 def extract_unfulfilled_requirements(text):
-    # Regular expression to match NO lines and associated details
     pattern = r'NO\s+(.*?)(?=\n(?:OK|NO|\n|$))'
     
     matches = re.findall(pattern, text, re.DOTALL)
@@ -225,16 +226,18 @@ def extract_unfulfilled_requirements(text):
             'details': []
         }
         
-        for line in lines[1:]:
-            line = line.strip()
+        # Find the index of the dashed line
+        dash_line_index = next((i for i, line in enumerate(lines) if re.match(r'^-+$', line)), len(lines))
+        
+        # Capture all lines between category and dashed line as details
+        requirement['details'] = [line.strip() for line in lines[1:dash_line_index] if line.strip()]
+        
+        # Extract 'NEEDS:' and 'EARNED:' from details if present
+        for line in requirement['details']:
             if line.startswith('NEEDS:'):
                 requirement['needs'] = line.split('NEEDS:')[1].strip()
             elif line.startswith('EARNED:'):
                 requirement['earned'] = line.split('EARNED:')[1].strip()
-            elif line.startswith('SELECT FROM:'):
-                requirement['details'].append(line)
-            elif line and not line.startswith('-'):
-                requirement['details'].append(line)
         
         unfulfilled_requirements.append(requirement)
     
