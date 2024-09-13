@@ -192,6 +192,9 @@ def extract_completed_requirements(text):
             'details': []
         }
         
+        if requirement['category'] == '= requirement complete':
+            continue
+        
         for line in lines[1:]:
             line = line.strip()
             if line.startswith('LEGEND'):
