@@ -109,6 +109,9 @@ def extract_courses_and_credits(text):
         status = match[2]
         course_name = match[3].strip()
         
+        if re.match(r'^E \d{3,4}$', course_code):
+            course_code = 'MS&E ' + course_code.split()[1]
+        
         if 'Statics' in course_name:
             credits = 3.00
         
