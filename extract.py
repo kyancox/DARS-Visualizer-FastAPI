@@ -118,8 +118,9 @@ def extract_courses_and_credits(text):
         # Use course_code as key to handle duplicates
         if course_code in courses:
             # If the course already exists, update the status if it's different
-            if courses[course_code]['status'] != status:
-                courses[course_code]['status'] += f"/{status}"
+            existing_statuses = set(courses[course_code]['status'].split('/'))
+            existing_statuses.add(status)
+            courses[course_code]['status'] = '/'.join(sorted(existing_statuses))
         else:
             courses[course_code] = {
                 "course_code": course_code,
