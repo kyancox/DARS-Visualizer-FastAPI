@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, Response, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import shutil
 import os
@@ -14,6 +14,10 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
+
+@app.get('/')
+def index():
+    return Response(content='FastAPI for DARS Visualizer.', status_code=200)
 
 @app.post("/extract-data/")
 async def extract_data(file: UploadFile = File(...)):
