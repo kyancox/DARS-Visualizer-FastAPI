@@ -29,7 +29,7 @@ class Course(BaseModel):
     course_name: str
 
 class InProgressCourse(Course):
-    semester: str
+    semester: Optional[str] = None
 
 class Credits(BaseModel):
     status: str
@@ -48,6 +48,7 @@ class ExtractedData(BaseModel):
     preparation_date: Optional[str] = None
     requested_school: Optional[str] = None
     requested_major: Optional[str] = None
+    gpa: str
     majors: List[str]
     certificates: List[str]
     credits: Credits

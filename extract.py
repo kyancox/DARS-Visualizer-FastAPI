@@ -324,6 +324,7 @@ def extract_all_data(pdf_path):
     all_courses = extract_courses_and_credits(raw_text)
     completed_requirements = extract_completed_requirements(raw_text)
     unfulfilled_requirements = extract_unfulfilled_requirements(raw_text)
+    gpa = extract_student_gpa(raw_text)
 
     # Compile all data into a single object
     all_data = {
@@ -338,6 +339,7 @@ def extract_all_data(pdf_path):
         "all_courses": all_courses,
         "completed_requirements": completed_requirements,
         "unfulfilled_requirements": unfulfilled_requirements,
+        "gpa": gpa,
     }
 
     return all_data
@@ -346,3 +348,30 @@ def extract_all_data(pdf_path):
 # all_data = extract_all_data('./assets/cals.pdf')
 
 # pprint(all_data)
+
+
+def extract_student_gpa(text):
+    print('extract_student_gpa called')
+    # Pattern to match GPA lines
+    gpa_patterns = [
+        r"(\d+\.\d+)\s+GPA\s*$",
+        r"(\d+\.\d+)\s+GPA\s+for\s+Advising",
+        r"(\d+\.\d+)\s+GPA\s*$",
+        r"(\d+\.\d+)\s+UW-Madison\s+Cumulative\s+GPA"
+    ]
+    
+    # Search for GPA using each pattern
+    for pattern in gpa_patterns:
+        match = re.search(pattern, text, re.MULTILINE)
+        if match:
+            return str(float(match.group(1)))
+    
+    # If no match found, return None
+    return None
+
+# Example usage:
+# gpa = extract_student_gpa(text)
+# if gpa is not None:
+#     print(f"Student's GPA: {gpa}")
+# else:
+#     print("GPA not found in the text")
