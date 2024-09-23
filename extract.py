@@ -129,6 +129,9 @@ def extract_courses_and_credits(text):
         if re.match(r"^E \d{3,4}$", course_code):
             course_code = "MS&E " + course_code.split()[1]
 
+        if 'EARNED' in course_name:
+            continue
+
         if "Statics" in course_name:
             credits = 3.00
 
